@@ -84,7 +84,6 @@ pipeline {
             }
         }
     }
-}
 post {
     cleanup{
         steps {
@@ -93,6 +92,7 @@ post {
                     configs: 'train-schedule-kube-canary.yml',
                     enableConfigSubstitution: true
                 )
+            }
         }
     }
 }
