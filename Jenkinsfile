@@ -3,7 +3,6 @@ pipeline {
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "akgundyg/train-schedule-autodeploy"
-        CANARY_REPLICAS = 0
     }
     stages {
         stage('Build') {
@@ -75,7 +74,17 @@ pipeline {
             when {
                 branch 'master'
             }
+            environment { 
+                CANARY_REPLICAS = 0
+            }
+            steps {
+                input 'Deploy to Production?'
                 milestone(1)
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube-canary.yml',
+                    enableConfigSubstitution: true
+                )
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
                     configs: 'train-schedule-kube.yml',
@@ -84,14 +93,4 @@ pipeline {
             }
         }
     }
-post {
-    cleanup{
-        steps {
-                kubernetesDeploy(
-                    kubeconfigId: 'kubeconfig',
-                    configs: 'train-schedule-kube-canary.yml',
-                    enableConfigSubstitution: true
-                )
-            }
-        }
-    }
+}
